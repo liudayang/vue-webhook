@@ -10,22 +10,22 @@ let server = http.createServer(function (req, res) {
     console.log(req.method, req.url);
     if (req.url == '/webhook' && req.method == 'POST') {
         let buffers = [];
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ "ok": true }));
+        // res.setHeader('Content-Type', 'application/json');
+        // res.end(JSON.stringify({ "ok": true }));
 
-        // req.on('data',function(data){
-        //   buffers.push(data);
-        // });
-        // req.on('end',function(){
-        //   let body = Buffer.concat(buffers);
-        //   let sig   = req.headers['x-hub-signature'];
-        //   let event = req.headers['x-github-event'];
-        //   let id    = req.headers['x-github-delivery'];
-        //   if(sig !== sign(body)){
-        //     return res.end('Not Allowed');
-        //   }
-        //   res.setHeader('Content-Type','application/json');
-        //   res.end(JSON.stringify({"ok":true}));
+        req.on('data',function(data){
+          buffers.push(data);
+        });
+        req.on('end',function(){
+          let body = Buffer.concat(buffers);
+          let sig   = req.headers['x-hub-signature'];
+          let event = req.headers['x-github-event'];
+          let id    = req.headers['x-github-delivery'];
+          if(sig !== sign(body)){
+            return res.end('Not Allowed');
+          }
+          res.setHeader('Content-Type','application/json');
+          res.end(JSON.stringify({"ok":true}));
         //   //===========分割线===================
         //   if(event === 'push'){
         //     let payload = JSON.parse(body);
@@ -43,7 +43,7 @@ let server = http.createServer(function (req, res) {
         //     `);
         //     });
         //   }
-        // });
+        });
     } else {
         res.end('Now Found!');
     }
